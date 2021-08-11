@@ -121,7 +121,7 @@ def cari(query):
 		if gg != None:
 			genre.append(gg)
 		else:
-			genre.append(g.find("div",{"class":"post-content_item mg_genres "}))
+			genre.append(g.find("div",{"class":"post-content_item mg_genres"}))
 
 	for x,y,z in zip(title,genre,rate):
 		jsn={"title":x.text, "genre": y.find("div",{"class":"summary-content"}).text.replace("\n",""), "rate": z.text, "url":x.find("a")["href"]}
