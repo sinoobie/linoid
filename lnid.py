@@ -133,6 +133,11 @@ try:
 except: pass
 
 try:
+	os.system("clear")
+	print("""\033[97m
+        [ LiNoid (Light Novel id) ]
+                - noobie -         
+""")
 	query=input("Cari: ")
 	hasil=cari(query)
 	if len(hasil) > 1:
