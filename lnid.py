@@ -165,5 +165,5 @@ try:
 # ketik angka saja tanpa garis untuk mendownload salah satu""")
 	pilih=input("noobie/> ")
 	chap_dl(cap, pilih, title)
-except Exceptiona as err:
+except Exception as err:
 	print(err)
