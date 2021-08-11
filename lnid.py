@@ -1,4 +1,4 @@
-import requests, re, os, time
+import requests, re, os, time, sys
 from fpdf import FPDF
 from bs4 import BeautifulSoup as BS
 
@@ -43,6 +43,8 @@ def download(url, cap, title):
 		pdf.print_chapter(text)
 		pdf.output(f"{PATH}.pdf", "F")
 		return True
+	except KeyboardInterrupt:
+		sys.exit()
 	except:
 		return False
 
@@ -94,7 +96,7 @@ def get_chap(url):
 		get_chap(url)
 
 	n=0
-	for x in data.find_all("li", {"class":"wp-manga-chapter "}):
+	for x in data.find_all("li"):
 		nc=x.find("a").text.strip()
 		_cap.append([n, nc, x.find("a")["href"]])
 		n-=1
