@@ -90,6 +90,8 @@ def get_chap(url):
 	req=requests.post("https://meionovel.id/wp-admin/admin-ajax.php", data={"action":"manga_get_chapters", "manga":mid})
 	bs=BS(req.text, "html.parser")
 	data=bs.find("ul", {"class":"sub-chap list-chap"})
+	while data == None:
+		get_chap(url)
 
 	n=0
 	for x in data.find_all("li", {"class":"wp-manga-chapter "}):
@@ -111,20 +113,9 @@ def cari(query):
 	if items == None:
 		cari(query)
 
-	rate=items.find_all("span", {"class":"score font-meta total_votes"})
-	title=items.find_all("h3", {"class":"h4"})
-
-	genr_=items.find_all("div", {"class":"post-content"})
-	genre=[]
-	for g in genr_:
-		gg=g.find("div",{"class":"post-content_item mg_genres nofloat"})
-		if gg != None:
-			genre.append(gg)
-		else:
-			genre.append(g.find("div",{"class":"post-content_item mg_genres"}))
-
-	for x,y,z in zip(title,genre,rate):
-		jsn={"title":x.text, "genre": y.find("div",{"class":"summary-content"}).text.replace("\n",""), "rate": z.text, "url":x.find("a")["href"]}
+	title=items.find_all("h3", {"class":"h4"})	
+	for t in title:
+		jsn={"title":t.text, "url":t.find("a")["href"]}
 		result.append(jsn)
 	return result
 
@@ -143,7 +134,7 @@ try:
 	if len(hasil) > 1:
 		n=1
 		for x in hasil:
-			print(f"[{n}] {x['title']}\n- Genre: {x['genre']}\n- Rating: {x['rate']} / 5")
+			print(f"{n}. {x['title']}")
 			n+=1
 		pil=int(input("Pilih: "))
 		lih=hasil[pil-1]["url"]
@@ -156,10 +147,12 @@ try:
 		sys.exit()
 
 	print(f"\n\033[96m[•{title}•]")
-	try:
-		cap=get_chap(lih)
-	except:
-		cap=get_chap(lih)
+	_req=requests.get(lih)
+	_bs=BS(_req.text, "html.parser")
+	_gen=_bs.find("div",{"class":"genres-content"})
+	_rate=_bs.find("div", {"typeof":"AggregateRating"}).text.strip()
+	print(f"[•Genre: {_gen.text.strip()}•]\n[•Rating: {' '.join(_rate.split()[-7:])}•]")
+	cap=get_chap(lih)
 	for y in range(len(cap)):
 		print(f"[{y+1}] {cap[y]['cap']}")
 	print(f"""[ {len(cap)} (Total) Chapter ditemukan ]
@@ -170,5 +163,5 @@ try:
 # ketik angka saja tanpa garis untuk mendownload salah satu""")
 	pilih=input("noobie/> ")
 	chap_dl(cap, pilih, title)
-except Exception as err:
+except Exceptiona as err:
 	print(err)
