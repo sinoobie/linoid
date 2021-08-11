@@ -15,7 +15,7 @@ pip install pillow
 pip install fpdf2 
 git clone https://github.com/kang-newbie/Maid
 cd Maid
-python3 maid.py
+python3 lnid.py
 ```
 > Bagi pengguna termux yang mengalami masalah saat menginstall pillow gunakan cara dibawah ini:
 ```
