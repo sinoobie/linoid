@@ -1,10 +1,6 @@
 # LiNoid
 LiNoid (Light Novel id) baca light novel bahasa indonesia terbaru dan ubah ke pdf dengan LiNoid
 
-### Note:
-> file `baca.py` adalah program untuk memudahkan kamu membuka/membaca hasil convert-an LiNoid
-
-
 # Install
 ```
 apt install python3
