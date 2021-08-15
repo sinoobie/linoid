@@ -16,7 +16,7 @@ class PDF(FPDF):
         # Chapter
         self.cell(0, 6, chap.replace('Revisi',''), 0, 1, 'C', 1)
         # Line break
-#        self.ln(4)
+        self.ln(4)
 
     def footer(self):
         # Position at 1.5 cm from bottom
@@ -45,7 +45,7 @@ def baca(path):
 	os.system("clear")
 	print("""\033[97m
 [ Baca LiNoid (Baca hasil convert-an LiNoid)]
-	          - noobie -
+                 - noobie -
 """)
 	n=1
 	print("\n[List Folder]")
@@ -62,19 +62,21 @@ def baca(path):
 		baca(path)
 
 	while True:
-		m=1
-		print(f"\n[List File: {der[pil-1]}]")
-		isi=glob(f"{der[pil-1]}/*.pdf")
-		isi.sort()
-		for i in isi:
-			print(f"{m}. {i.split('/')[-1:][0]}")
-			m+=1
-		lih=input("[ketik \"!B\" untuk kembali ke list folder]\npilih: ")
-		if lih.lower() == "!b":
-			baca(path)
-		elif lih.isdigit():
-			print(f"[membuka file {isi[int(lih)-1].split('/')[-1:][0]}]")
-			os.system(f"xdg-open '{isi[int(lih)-1]}'")
+		try:
+			m=1
+			print(f"\n[List File: {der[pil-1].split('/')[-1:][0]}]")
+			isi=sorted(glob(f"{der[pil-1]}/*.pdf"), key=lambda x:[int(c) if c.isdigit() else c for c in re.split(r'(\d+)', x)])
+			for i in isi:
+				print(f"{m}. {i.split('/')[-1:][0]}")
+				m+=1
+			lih=input("[ketik \"!B\" untuk kembali ke list folder]\npilih: ")
+			if lih.lower() == "!b":
+				baca(path)
+			elif lih.isdigit():
+				print(f"[membuka file {isi[int(lih)-1].split('/')[-1:][0]}]")
+				os.system(f"xdg-open '{isi[int(lih)-1]}'")
+		except:
+			sys.exit()
 
 
 ###########MAIN PROGRAM#################
@@ -89,10 +91,12 @@ def download(url, cap, title):
 		bs=BS(req.text, "html.parser")
 		txt=bs.find("div",{"class":"text-left"})
 
-		text=""
+		text=[]
 		for x in txt.find_all("p"):
-			text+=x.text.strip()+"\n\n"
-		
+			if len(x.text.strip()) > 1 and x.text.strip().split()[:1][0].lower() != "bab":
+				text.append(x.text.strip())
+		text="\n\n".join(text)
+
 		pdf = PDF(format="A5")
 		pdf.add_font('DejaVu','','DejaVuSansCondensed.ttf', uni=True)
 		PATH=f"{MAINPATH}/{cap}"
@@ -165,13 +169,13 @@ def cari(query):
 	result=[]
 	req=requests.get(f"https://meionovel.id/?s={query}&post_type=wp-manga")
 	if "No matches found. Try a different search..." in req.text:
-		return 0
+		return []
 	bs=BS(req.text, "html.parser")
 	items=bs.find("div",{"class":"c-tabs-item"})
 	if items == None:
 		cari(query)
 
-	title=items.find_all("h3", {"class":"h4"})	
+	title=items.find_all("h3", {"class":"h4"})
 	for t in title:
 		jsn={"title":t.text, "url":t.find("a")["href"]}
 		result.append(jsn)
