@@ -1,8 +1,23 @@
+#####!!!CODE BERANTAKAN BODO AMAT YANG PENTING PROGRAM JALAN XD!!!#####
+
 import requests, re, os, time, sys
 from fpdf import FPDF
 from bs4 import BeautifulSoup as BS
 
+##########PDF CONVERTER#################
 class PDF(FPDF):
+    def chapter_title(self, title, chap):
+        # Dejavu 12
+        self.set_font('Dejavu', '', 12)
+        # Background color
+        self.set_fill_color(200, 220, 255)
+        # Title
+        self.cell(0, 6, title, 0, 1, 'C', 1)
+        # Chapter
+        self.cell(0, 6, chap.replace('Revisi',''), 0, 1, 'C', 1)
+        # Line break
+#        self.ln(4)
+
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -11,10 +26,12 @@ class PDF(FPDF):
         # Text color in gray
         self.set_text_color(128)
         # Page number
+        self.cell(0, 10, 'LiNoid (https://github.com/kang-newbie/linoid)', 0, 0, 'L')
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'R')
 
-    def print_chapter(self, text):
+    def print_chapter(self, title, chap, text):
         self.add_page()
+        self.chapter_title(title, chap)
         # Dejavu 12
         self.set_font('DejaVu', '', 12)
         # Output justified text
@@ -22,8 +39,47 @@ class PDF(FPDF):
         # Line break
         self.ln()
 
+##########FILE READER#################
+from glob import glob
+def baca(path):
+	os.system("clear")
+	print("""\033[97m
+[ Baca LiNoid (Baca hasil convert-an LiNoid)]
+	          - noobie -
+""")
+	n=1
+	print("\n[List Folder]")
+	der=glob(f"{path}/*")
+	for d in der:
+		print(f"{n}. {d.split('/')[-1:][0]}")
+		n+=1
+	pil=input("[ketik \"!M\" untuk kembali ke menu utama]\npilih: ")
+	if pil.lower() == "!m":
+		main()
+	elif pil.isdigit():
+		pil=int(pil)
+	else:
+		baca(path)
+
+	while True:
+		m=1
+		print(f"\n[List File: {der[pil-1]}]")
+		isi=glob(f"{der[pil-1]}/*.pdf")
+		isi.sort()
+		for i in isi:
+			print(f"{m}. {i.split('/')[-1:][0]}")
+			m+=1
+		lih=input("[ketik \"!B\" untuk kembali ke list folder]\npilih: ")
+		if lih.lower() == "!b":
+			baca(path)
+		elif lih.isdigit():
+			print(f"[membuka file {isi[int(lih)-1].split('/')[-1:][0]}]")
+			os.system(f"xdg-open '{isi[int(lih)-1]}'")
+
+
+###########MAIN PROGRAM#################
 def download(url, cap, title):
-	MAINPATH=f"result/{title}"
+	MAINPATH=f"{MAINDIR}/{title}"
 	try:
 		os.mkdir(MAINPATH)
 	except: pass
@@ -37,10 +93,10 @@ def download(url, cap, title):
 		for x in txt.find_all("p"):
 			text+=x.text.strip()+"\n\n"
 		
-		pdf = PDF()
+		pdf = PDF(format="A5")
 		pdf.add_font('DejaVu','','DejaVuSansCondensed.ttf', uni=True)
 		PATH=f"{MAINPATH}/{cap}"
-		pdf.print_chapter(text)
+		pdf.print_chapter(title, cap, text)
 		pdf.output(f"{PATH}.pdf", "F")
 		return True
 	except KeyboardInterrupt:
@@ -121,18 +177,18 @@ def cari(query):
 		result.append(jsn)
 	return result
 
-try:
-	os.mkdir("result")
-except: pass
-
-try:
+def main():
 	os.system("clear")
 	print("""\033[97m
         [ LiNoid (Light Novel id) ]
-                - noobie -         
+                - noobie -
 """)
-	query=input("Cari: ")
-	hasil=cari(query)
+	query=input("[ketik \"!R\" untuk baca hasil convert-an LiNoid]\nCari: ")
+	if query.lower() == "!r":
+		baca(MAINDIR)
+	else:
+		hasil=cari(query)
+
 	if len(hasil) > 1:
 		n=1
 		for x in hasil:
@@ -165,5 +221,26 @@ try:
 # ketik angka saja tanpa garis untuk mendownload salah satu""")
 	pilih=input("noobie/> ")
 	chap_dl(cap, pilih, title)
-except Exception as err:
-	print(err)
+
+
+
+
+if __name__ == '__main__':
+	MAINDIR="/storage/emulated/0/LiNoid"
+	try:
+		os.listdir("/storage/emulated/0")
+	except PermissionError:
+		print("\033[97mNote: Program ini membutuhkan akses internal storage untuk menyimpan hasil download")
+		os.system('termux-setup-storage')
+		sys.exit()
+	except FileNotFoundError:
+		MAINDIR="result"
+
+	try:
+		os.mkdir(MAINDIR)
+	except: pass
+
+	try:
+		main()
+	except Exception as err:
+		print(err)
