@@ -147,11 +147,11 @@ def chap_dl(cap, pilih, title):
 
 def get_chap(url):
 	_cap=[]
-	_req=requests.get(url)
-	mid=re.findall("data-id=\"(.*?)\"", _req.text)
-	req=requests.post("https://meionovel.id/wp-admin/admin-ajax.php", data={"action":"manga_get_chapters", "manga":mid})
+	req=requests.post(url+"ajax/chapters/")
+#	mid=re.findall("data-id=\"(.*?)\"", _req.text)
+#	req=requests.post("https://meionovel.id/wp-admin/admin-ajax.php", data={"action":"manga_get_chapters", "manga":mid})
 	bs=BS(req.text, "html.parser")
-	data=bs.find("ul", {"class":"sub-chap list-chap"})
+	data=bs.find("ul", {"class":"sub-chap-list"})
 	while data == None:
 		get_chap(url)
 
